@@ -6,16 +6,22 @@ export class ProductController {
   constructor(private readonly productService: ProductsService) {}
 
   @Post()
-  addProduct(
+  async addProduct(
     @Body() body: any,
-  ): any {
-    const data = this.productService.insertProduct(body.title, body.description, body.price);
-    return  data ;
+  ): Promise<any> {
+    const generatedID = await this.productService.insertProduct(body.title, body.description, body.price);
+    return  {id: generatedID};
   }
 
   @Get()
-  getAllProducts(){
-    return this.productService.getProducts()
+  async getAllProducts(){
+    const products = await this.productService.getProducts()
+    return products.map(prod => ({
+      id: prod.id,
+      title: prod.title,
+      description: prod.description,
+      price: prod.price
+    }))
   }
 
   @Get(':id')
@@ -29,8 +35,8 @@ export class ProductController {
   }
 
   @Delete(':id')
-  deleteProduct(@Param('id') prodId: string, ) : any{
-    return this.productService.deleteProduct(prodId)
+  async deleteProduct(@Param('id') prodId: string, ) : Promise<any> {
+    const result = await this.productService.deleteProduct(prodId)
   }
   
 }
